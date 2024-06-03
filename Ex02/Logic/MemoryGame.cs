@@ -86,7 +86,7 @@ namespace Ex02
         {
             return r_Turn.GetCurrentPlayerName();
         }
-        public int FindMaxIndex(List<int> list)
+        private int findMaxIndex(List<int> list)
         {
             int maxIndex = 0;
             int maxValue = list[0];
@@ -105,7 +105,7 @@ namespace Ex02
 
         public string Winner()
         {
-            int winnerPlayerIndex = FindMaxIndex(r_CounterOfRevealedCards);
+            int winnerPlayerIndex = findMaxIndex(r_CounterOfRevealedCards);
 
             return r_Players[winnerPlayerIndex];
         }
