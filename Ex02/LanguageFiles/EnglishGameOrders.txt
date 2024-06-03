@@ -1,0 +1,11 @@
+Please provide your name
+Please press 1 if you want to play against another person or 2 if you want to play against the computer.
+Please enter the other player name
+Enter width (4, 5, or 6): 
+turn
+Please choose an available square
+this square isn't available
+Height * Width must be even.
+Invalid input.
+won!
+Enter height (4, 5, or 6):
