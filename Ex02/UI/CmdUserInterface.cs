@@ -118,7 +118,7 @@ namespace Ex02
                 }
                 Console.WriteLine(r_Instructions[(int)GameText.InvalidInput]);
             }
-
+            /
             o_Rival = choiceInput == k_HumanRival ? PlayerType.Human : PlayerType.Computer;
             if (o_Rival == PlayerType.Human)
             {
