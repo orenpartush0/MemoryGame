@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Runtime.Remoting.Lifetime;
 using System.Text;
-using Ex02.Logic;
-
+using Ex02.ConsoleUtils;
 
 namespace Ex02
 {
@@ -33,7 +30,7 @@ namespace Ex02
 
         public void StartGame()
         {
-            Console.Clear();
+            Screen.Clear();
             while (!r_Game.Board.IsBoardFinished())
             {
                 printBoard();
@@ -42,7 +39,7 @@ namespace Ex02
                 bool isSucceededToGuess = r_Game.UpdateBoardAndData(validMove);
                 if (validMove)
                 {
-                    Console.Clear();
+                    Screen.Clear();
                     printBoard();
                     if (!isSucceededToGuess && r_Game.IsSecondGuessOfPlayer() && validMove)
                     {
@@ -51,16 +48,16 @@ namespace Ex02
                     }
 
                     r_Game.FinishMove();
-                    Console.Clear();
+                    Screen.Clear();
                 }
                 else
                 {
-                    Console.Clear();
+                    Screen.Clear();
                     Console.WriteLine(r_Instructions[(int)GameText.SquareUnavailable] + "\n");
                 }
             }
 
-            Console.Clear();
+            Screen.Clear();
             Console.WriteLine($"{r_Game.Winner()} {r_Instructions[(int)GameText.Won]}");
         }
 
