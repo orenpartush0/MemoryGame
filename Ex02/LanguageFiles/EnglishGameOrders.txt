@@ -9,3 +9,5 @@ Height * Width must be even.
 Invalid input.
 won!
 Enter height (4, 5, or 6):
+Computer
+Tie!

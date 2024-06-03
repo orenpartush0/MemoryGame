@@ -14,6 +14,7 @@ namespace Ex02
         private const int k_HumanRival = 1;
         private readonly List<string> r_Instructions;
         private readonly MemoryGame r_Game;
+        private bool IsPvP { set; get; }
 
         public CmdUserInterface()
         {
@@ -31,35 +32,74 @@ namespace Ex02
         public void StartGame()
         {
             Screen.Clear();
+
             while (!r_Game.Board.IsBoardFinished())
             {
-                printBoard();
+                clearAndPrintBoard();
                 Console.WriteLine($"{r_Game.GetCurrentPlayerName()} {r_Instructions[(int)GameText.Turn]}");
-                selectSquare(out bool validMove);
-                bool isSucceededToGuess = r_Game.UpdateBoardAndData(validMove);
+                bool validMove = selectSquare();
+
                 if (validMove)
                 {
-                    Screen.Clear();
-                    printBoard();
-                    if (!isSucceededToGuess && r_Game.IsSecondGuessOfPlayer() && validMove)
+                    r_Game.UpdateData();
+                    if (r_Game.IsSecondGuessOfPlayer() && !isSucceededToGuess())
                     {
+                        clearAndPrintBoard();
+                        delay(k_2Sec);
                         r_Game.HideSquaresAfter2Turns();
-                        System.Threading.Thread.Sleep(k_2Sec);
                     }
 
-                    r_Game.FinishMove();
-                    Screen.Clear();
+                    handleValidMove();
                 }
                 else
                 {
-                    Screen.Clear();
-                    Console.WriteLine(r_Instructions[(int)GameText.SquareUnavailable] + "\n");
+                    notifyInvalidSquare();
+                    delay(k_2Sec);
                 }
             }
 
             Screen.Clear();
-            Console.WriteLine($"{r_Game.Winner()} {r_Instructions[(int)GameText.Won]}");
+            bool tie = r_Game.Winner() == null;
+            Console.WriteLine($"{(tie ? r_Instructions[(int)GameText.Tie] : r_Game.Winner())} {(tie ? "" : r_Instructions[(int)GameText.Won])}");
         }
+
+        private void clearAndPrintBoard()
+        {
+            Screen.Clear();
+            printBoard();
+        }
+
+        private bool isSucceededToGuess()
+        {
+            return r_Game.Board.IsTwoInRow();
+        }
+
+        private bool selectSquare()
+        {
+            selectSquare(out bool validMove);
+
+            return validMove;
+        }
+
+        private void handleValidMove()
+        {
+            Screen.Clear();
+            printBoard();
+            r_Game.NextOne();
+            r_Game.FinishMove();
+        }
+
+        private void notifyInvalidSquare()
+        {
+            Screen.Clear();
+            Console.WriteLine(r_Instructions[(int)GameText.SquareUnavailable] + "\n");
+        }
+
+        private void delay(int i_Milliseconds)
+        {
+            System.Threading.Thread.Sleep(i_Milliseconds);
+        }
+
 
         SupportedLanguage getValidLanguage()
         {
@@ -95,15 +135,16 @@ namespace Ex02
         {
             Console.WriteLine(r_Instructions[(int)GameText.ProvideName]);
             o_FirstPlayerName = Console.ReadLine();
+            setMode();
             setRival(out o_Rival, out o_SecondPlayerName);
             getBoardSize(out int boardWidth, out int boardHeight);
             o_Board = new Board(boardWidth, boardHeight);
         }
 
-        private void setRival(out PlayerType o_Rival, out string o_SecondPlayerName)
+        private void setMode()
         {
-            int choiceInput;
             Console.WriteLine(r_Instructions[(int)GameText.PlayMode]);
+            int choiceInput;
             while (true)
             {
                 if (int.TryParse(Console.ReadLine(), out choiceInput))
@@ -115,8 +156,14 @@ namespace Ex02
                 }
                 Console.WriteLine(r_Instructions[(int)GameText.InvalidInput]);
             }
-            
-            o_Rival = choiceInput == k_HumanRival ? PlayerType.Human : PlayerType.Computer;
+
+            IsPvP = choiceInput == k_HumanRival ? true : false;
+        }
+
+        private void setRival(out PlayerType o_Rival, out string o_SecondPlayerName)
+        {
+
+            o_Rival = IsPvP ? PlayerType.Human : PlayerType.Computer;
             if (o_Rival == PlayerType.Human)
             {
                 Console.WriteLine(r_Instructions[(int)GameText.OtherPlayerName]);
@@ -124,26 +171,24 @@ namespace Ex02
             }
             else
             {
-                o_SecondPlayerName = "Computer";
+                o_SecondPlayerName = r_Instructions[(int)GameText.Computer];
             }
         }
 
+        private void setBoardLen(out int o_Len, int i_TextToPrint)
+        {
+            Console.WriteLine(r_Instructions[i_TextToPrint]);
+            while (!int.TryParse(Console.ReadLine(), out o_Len) || !Enum.IsDefined(typeof(BoardSize), o_Len))
+            {
+                Console.WriteLine(r_Instructions[(int)GameText.InvalidInput]);
+            }
+        }
         private void getBoardSize(out int o_Width, out int o_Height)
         {
             while (true)
             {
-                Console.WriteLine(r_Instructions[(int)GameText.EnterWidth]);
-                while (!int.TryParse(Console.ReadLine(), out o_Width) || !Enum.IsDefined(typeof(BoardSize), o_Width))
-                {
-                    Console.WriteLine(r_Instructions[(int)GameText.InvalidInput]);
-                }
-
-                Console.WriteLine(r_Instructions[(int)GameText.EnterHeight]);
-                while (!int.TryParse(Console.ReadLine(), out o_Height) || !Enum.IsDefined(typeof(BoardSize), o_Height))
-                {
-                    Console.WriteLine(r_Instructions[(int)GameText.EnterWidth]);
-                }
-
+                setBoardLen(out o_Width, (int)GameText.EnterWidth);
+                setBoardLen(out o_Height, (int)GameText.EnterHeight);
                 if ((o_Height * o_Width) % 2 == 0)
                 {
                     break;
@@ -183,12 +228,17 @@ namespace Ex02
 
         private bool isSelectedSquareIsValid(string i_SelectedSquare)
         {
+            bool isNumber = false; bool validNumber = false;
             bool selectedSquareSize = i_SelectedSquare.Length == 2;
             char lastValidLetter = (char)('A' + r_Game.Board.BoardWidth - 1);
             bool validLetter = i_SelectedSquare[0] <= lastValidLetter && i_SelectedSquare[0] >= 'A';
             int lastValidNumber = (int)r_Game.Board.BoardHeight;
-            bool isNumber = int.TryParse(i_SelectedSquare[1].ToString(), out int digit);
-            bool validNumber = digit <= lastValidNumber;
+
+            if (selectedSquareSize)
+            {
+                isNumber = int.TryParse(i_SelectedSquare[1].ToString(), out int digit);
+                validNumber = digit <= lastValidNumber;
+            }
 
             return validLetter && validNumber && selectedSquareSize && isNumber;
         }
@@ -197,26 +247,27 @@ namespace Ex02
         {
             StringBuilder sb = new StringBuilder();
 
-            foreach (char currentChar in Enumerable.Range('A', (int)r_Game.Board.BoardWidth))
+            for (char currentChar = 'A'; currentChar < 'A' + r_Game.Board.BoardWidth; currentChar++)
             {
                 sb.AppendFormat("   {0}", currentChar);
             }
+            sb.AppendLine();
 
-            sb.Append("\n");
-            string repeatedEquals = new string('=', 4 * (int)r_Game.Board.BoardWidth + 1);
-            foreach (int row in Enumerable.Range(0, (int)r_Game.Board.BoardHeight))
+            string repeatedEquals = new string('=', 4 * r_Game.Board.BoardWidth + 1);
+
+            for (int row = 0; row < r_Game.Board.BoardHeight; row++)
             {
                 sb.AppendLine(repeatedEquals);
                 sb.Append($"{row + 1}");
-                foreach (int col in Enumerable.Range(0, (int)r_Game.Board.BoardWidth))
+
+                for (int col = 0; col < r_Game.Board.BoardWidth; col++)
                 {
-                    sb.AppendFormat(
-                        r_Game.Board.IsSquareRevealed(row, col)
-                            ? $"| {r_Game.Board.GetSquareLetter(row, col)} "
-                            : "|   ");
+                    char squareLetter = r_Game.Board.GetSquareLetter(row, col);
+                    string squareDisplay = r_Game.Board.IsSquareRevealed(row, col) ? $"| {squareLetter} " : "|   ";
+                    sb.Append(squareDisplay);
                 }
 
-                sb.Append("|\n");
+                sb.AppendLine("|");
             }
 
             sb.AppendLine(repeatedEquals);

@@ -50,6 +50,11 @@ namespace Ex02
             GuessHistory.Add(new Guess(i_Row, i_Col, lastGuessLetter));
         }
 
+        public bool IsTwoInRow()
+        {
+            return GuessHistory[GuessHistory.Count - 1].Letter == GuessHistory[GuessHistory.Count - 2].Letter;
+        }
+
         public void HideSquare(int i_Row, int i_Col)
         {
             r_Squares[i_Row, i_Col].IsReveal = false;
@@ -83,6 +88,5 @@ namespace Ex02
         {
             return r_Squares[i_Row, i_Col].Content;
         }
-
     }
 }

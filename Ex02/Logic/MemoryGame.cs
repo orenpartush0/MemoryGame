@@ -50,33 +50,32 @@ namespace Ex02
             return validMove;
         }
 
-        public bool UpdateBoardAndData(bool i_ValidMove)
+        public void UpdateData()
         {
-            bool isSucceeded = false;
+            int size = Board.GuessHistory.Count;
 
-            if (i_ValidMove)
+            if (r_Turn.IsSecondGuess && Board.IsTwoInRow())
             {
-                int size = Board.GuessHistory.Count;
-
-                if (r_Turn.IsSecondGuess && Board.GuessHistory[size - 1].Letter == Board.GuessHistory[size - 2].Letter)
-                {
-                    r_CounterOfRevealedCards[r_Turn.CurrentPlayerIndex] += 2;
-                    Board.CounterOfRevealedSquares += 2;
-                    isSucceeded = true;
-                }
-                else if (r_Turn.IsSecondGuess && Board.GuessHistory[size - 1].Letter != Board.GuessHistory[size - 2].Letter)
-                {
-                    r_Turn.NextTurn();
-                }
-
+                r_CounterOfRevealedCards[r_Turn.CurrentPlayerIndex] += 2;
+                Board.CounterOfRevealedSquares += 2;
             }
 
-            return isSucceeded;
+        }
+
+        public void NextOne()
+        {
+            int size = Board.GuessHistory.Count;
+
+            if (r_Turn.IsSecondGuess && Board.GuessHistory[size - 1].Letter != Board.GuessHistory[size - 2].Letter)
+            {
+                r_Turn.NextTurn();
+            }
         }
 
         public void HideSquaresAfter2Turns()
         {
             int size = Board.GuessHistory.Count;
+
             Board.HideSquare(Board.GuessHistory[size - 1].Row, Board.GuessHistory[size - 1].Col);
             Board.HideSquare(Board.GuessHistory[size - 2].Row, Board.GuessHistory[size - 2].Col);
         }
@@ -106,8 +105,13 @@ namespace Ex02
         public string Winner()
         {
             int winnerPlayerIndex = findMaxIndex(r_CounterOfRevealedCards);
+            string winner = r_Players[winnerPlayerIndex];
 
-            return r_Players[winnerPlayerIndex];
+            bool tie = r_CounterOfRevealedCards
+                .Where((value, index) => index != winnerPlayerIndex)
+                .Any(i_RevealedCards => i_RevealedCards == r_CounterOfRevealedCards[winnerPlayerIndex]);
+
+            return tie ? null : r_Players[winnerPlayerIndex];
         }
 
         public bool IsSecondGuessOfPlayer()

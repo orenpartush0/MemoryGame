@@ -12,5 +12,7 @@ public enum GameText
     HeightWidthEven,
     InvalidInput,
     Won,
-    EnterHeight
+    EnterHeight,
+    Computer,
+    Tie
 }
