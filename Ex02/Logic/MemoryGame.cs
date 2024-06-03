@@ -120,9 +120,9 @@ namespace Ex02
             r_Turn.IsSecondGuess = !r_Turn.IsSecondGuess;
         }
 
-        public bool IsHumanPlay(int i_PlayerIndex)
+        public bool IsHumanPlay()
         {
-            return r_PlayerTypes[i_PlayerIndex].Equals(PlayerType.Human);
+            return r_PlayerTypes[r_Turn.CurrentPlayerIndex].Equals(PlayerType.Human);
         }
 
     }

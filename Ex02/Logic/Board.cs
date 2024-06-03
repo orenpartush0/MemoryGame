@@ -12,17 +12,17 @@ namespace Ex02
         private readonly Square[,] r_Squares;
         public List<Guess> GuessHistory { get; set; }
         public int CounterOfRevealedSquares { get; set; }
-        public BoardSize BoardWidth { get; }
-        public BoardSize BoardHeight { get; }
+        public int BoardWidth { get; }
+        public int BoardHeight { get; }
 
-        public Board(BoardSize i_BoardWidth, BoardSize i_BoardHeight)
+        public Board(int i_BoardWidth, int i_BoardHeight)
         {
             CounterOfRevealedSquares = 0;
             GuessHistory = new List<Guess>();
             BoardWidth = i_BoardWidth;
             BoardHeight = i_BoardHeight;
-            r_Squares = new Square[(int)BoardHeight, (int)BoardWidth];
-            int numOfSquares = (int)BoardWidth * (int)BoardHeight;
+            r_Squares = new Square[BoardHeight, BoardWidth];
+            int numOfSquares = BoardWidth * BoardHeight;
             List<int> availableSquares = Enumerable.Range(0, numOfSquares).ToList();
             Random rand = new Random();
 
@@ -33,7 +33,7 @@ namespace Ex02
                     int index = rand.Next(availableSquares.Count);
                     int squareIndex = availableSquares[index];
                     availableSquares.Remove(squareIndex);
-                    r_Squares[squareIndex / (int)BoardWidth, squareIndex % (int)BoardWidth] = new Square(letter);
+                    r_Squares[squareIndex / BoardWidth, squareIndex % BoardWidth] = new Square(letter);
                 }
             }
         }
@@ -73,8 +73,7 @@ namespace Ex02
 
                 if (!r_Squares[row, col].IsReveal)
                 {
-                    char lastGuessLetter = r_Squares[row, col].Content;
-                    GuessHistory.Add(new Guess(row, col, lastGuessLetter));
+                    RevealSquare(row, col);
                     break;
                 }
             }

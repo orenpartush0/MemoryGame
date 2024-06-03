@@ -48,7 +48,6 @@ namespace Ex02
                     {
                         r_Game.HideSquaresAfter2Turns();
                         System.Threading.Thread.Sleep(k_2Sec);
-                        Console.Clear();
                     }
 
                     r_Game.FinishMove();
@@ -101,7 +100,7 @@ namespace Ex02
             o_FirstPlayerName = Console.ReadLine();
             setRival(out o_Rival, out o_SecondPlayerName);
             getBoardSize(out int boardWidth, out int boardHeight);
-            o_Board = new Board((BoardSize)boardWidth, (BoardSize)boardHeight);
+            o_Board = new Board(boardWidth, boardHeight);
         }
 
         private void setRival(out PlayerType o_Rival, out string o_SecondPlayerName)
@@ -163,7 +162,7 @@ namespace Ex02
         {
             string selectedSquare = "";
 
-            if (r_Game.IsHumanPlay(1))
+            if (r_Game.IsHumanPlay())
             {
                 Console.WriteLine(r_Instructions[(int)GameText.ChooseSquare]);
                 while (true)
